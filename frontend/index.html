@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat IA - Gemini/ChatGPT Clone</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; }
+        #chat { width: 100%; max-width: 600px; margin: 40px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px #ccc; }
+        .msg { margin-bottom: 16px; }
+        .user { color: #1976d2; }
+        .bot { color: #388e3c; }
+        #input { width: 80%; padding: 8px; }
+        #send { padding: 8px 16px; }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <div id="messages"></div>
+        <input id="input" type="text" placeholder="Digite sua pergunta..." />
+        <button id="send">Enviar</button>
+    </div>
+    <script>
+        const input = document.getElementById('input');
+        const send = document.getElementById('send');
+        const messages = document.getElementById('messages');
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = 'msg ' + sender;
+            div.textContent = (sender === 'user' ? 'Você: ' : 'IA: ') + text;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        send.onclick = async () => {
+            const question = input.value.trim();
+            if (!question) return;
+            addMessage(question, 'user');
+            input.value = '';
+            addMessage('Pensando...', 'bot');
+            const res = await fetch('http://localhost:8000/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question })
+            });
+            const data = await res.json();
+            messages.lastChild.textContent = 'IA: ' + data.answer;
+        };
+    </script>
+</body>
+</html>
